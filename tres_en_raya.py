@@ -31,7 +31,7 @@ def jugar(board):
         if inicial == 'jugador':
             muestra_tablero(board)
             entra_movimiento(board)
-            # muestra_tablero(board)
+            muestra_tablero(board)
 
             if victoria_para(board, ficha):
                 print("\033[1;32m" + "¡¡Has ganado!! 🥳" + '\033[0;m')
