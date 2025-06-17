@@ -197,7 +197,7 @@ while True:
     board = reiniciar_tablero()
     jugar(board)
     
-    respuesta = input("\n¿Quieres jugar otra partida? (s/n): ").lower()
+    respuesta = input("\n¿Echamos otra? (s/n): ").lower()
     if respuesta != 's':
-        print("\n\033[1;36mGracias por jugar. ¡Hasta la próxima!\033[0;m")
+        print("\n\033[1;36m¡Enga, taluego! 😄\033[0;m")
         break
