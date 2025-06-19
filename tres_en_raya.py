@@ -24,7 +24,6 @@ else:
 
 def jugar(board):
     global victorias, derrotas, empates
-
     inicial = jugador_inicial()
 
     while True:
@@ -41,6 +40,7 @@ def jugar(board):
                 print("\033[1;36m" + "Empate. 😐" + '\033[0;m')
                 empates += 1
                 break
+            print("\033[1;35m"+f"Casillas libres: {casillas_libres(board)}"+'\033[0;m')
 
             dibuja_movimiento_maquina(board)
             if victoria_para(board, ficha_maq):
@@ -51,6 +51,7 @@ def jugar(board):
                 print("\033[1;36m" + "Empate. 😐" + '\033[0;m')
                 empates += 1
                 break
+            print("\033[1;35m"+f"Casillas libres: {casillas_libres(board)}"+'\033[0;m')
 
         else:
             dibuja_movimiento_maquina(board)
@@ -62,6 +63,7 @@ def jugar(board):
                 print("\033[1;36m" + "Empate. 😐" + '\033[0;m')
                 empates += 1
                 break
+            print("\033[1;35m"+f"Casillas libres: {casillas_libres(board)}"+'\033[0;m')
 
             entra_movimiento(board)
             muestra_tablero(board)
@@ -73,15 +75,16 @@ def jugar(board):
                 print("\033[1;36m" + "Empate. 😐" + '\033[0;m')
                 empates += 1
                 break
+            print("\033[1;35m"+f"Casillas libres: {casillas_libres(board)}"+'\033[0;m')
 
     registrar_resultados()
     mostrar_marcador()
 
 
 
-#######################
-# Funciones auxiliares
-#######################
+########################
+# Funciones auxiliares #
+########################
 
 def jugador_inicial():
     """ Elige aleatoriamente quién empieza """
@@ -111,6 +114,17 @@ def lista_de_pos_vacias(board):
                 vacios.append([i, j])
     return vacios
 
+# ---- Traducción de posiciones vacías al número de casilla --
+def casillas_libres(board):
+    pos = {(0, 0): 1, (0, 1): 2, (0, 2): 3,
+           (1, 0): 4, (1, 1): 5, (1, 2): 6,
+           (2, 0): 7, (2, 1): 8, (2, 2): 9}
+    
+    libres = []
+    for casilla in lista_de_pos_vacias(board):
+        libres.append(pos[tuple(casilla)])
+    return libres
+
 
 def entra_movimiento(board):
     """ Registra el movimiento del jugador """
@@ -137,15 +151,69 @@ def entra_movimiento(board):
         entra_movimiento(board)
 
 
-def dibuja_movimiento_maquina(board):
-    """ Movimiento aleatorio de la máquina """
-    disponibles = lista_de_pos_vacias(board)
-    if not disponibles:
-        return
-    elegido = random.choice(disponibles)
-    board[elegido[0]][elegido[1]] = ficha_maq
-    return muestra_tablero(board)
+def victoria_para(board, ficha):
+    pos = {(0, 0): 1, (0, 1): 2, (0, 2): 3,
+           (1, 0): 4, (1, 1): 5, (1, 2): 6,
+           (2, 0): 7, (2, 1): 8, (2, 2): 9}
+    victorias = [
+        {1, 2, 3}, {4, 5, 6}, {7, 8, 9},
+        {1, 4, 7}, {2, 5, 8}, {3, 6, 9},
+        {1, 5, 9}, {3, 5, 7}
+    ]
 
+    jugadas = {pos[(i, j)] for i in range(3) for j in range(3) if board[i][j] == ficha}
+    return any(v.issubset(jugadas) for v in victorias)
+
+
+def evaluar_estado(board):
+    if victoria_para(board, ficha_maq):
+        return 1
+    elif victoria_para(board, ficha):
+        return -1
+    elif not lista_de_pos_vacias(board):
+        return 0
+    return None
+
+
+def minimax(board, es_max):
+    estado = evaluar_estado(board)
+    if estado is not None:
+        return estado
+
+    if es_max:
+        mejor = -float('inf')
+        for pos in lista_de_pos_vacias(board):
+            board[pos[0]][pos[1]] = ficha_maq
+            val = minimax(board, False)
+            board[pos[0]][pos[1]] = ' '
+            mejor = max(mejor, val)
+        return mejor
+    else:
+        mejor = float('inf')
+        for pos in lista_de_pos_vacias(board):
+            board[pos[0]][pos[1]] = ficha
+            val = minimax(board, True)
+            board[pos[0]][pos[1]] = ' '
+            mejor = min(mejor, val)
+        return mejor
+
+def dibuja_movimiento_maquina(board):
+    """ Movimiento según algoritmo minimax """
+    mejor_valor = -float('inf')
+    mejor_jugada = None
+
+    for pos in lista_de_pos_vacias(board):
+        board[pos[0]][pos[1]] = ficha_maq
+        val = minimax(board, False)
+        board[pos[0]][pos[1]] = ' '
+        if val > mejor_valor:
+            mejor_valor = val
+            mejor_jugada = pos
+
+    if mejor_jugada:
+        board[mejor_jugada[0]][mejor_jugada[1]] = ficha_maq
+        print(f"\033[1;33mHe jugado en la casilla {mejor_jugada[0]*3 + mejor_jugada[1] + 1}\033[0;m")
+        muestra_tablero(board)
 
 def victoria_para(board, ficha):
     """ Comprueba si la ficha ha ganado """
@@ -173,9 +241,9 @@ def victoria_para(board, ficha):
 
 
 def registrar_resultados():
-    """ Guarda el resultado en un archivo CSV """
+    """ Guarda el resultado en un archivo .csv """
     with open('3enraya_resultados.csv', 'a+') as resultados:
-        resultados.write(f'{victoria_para(board, ficha)}, {victoria_para(board, ficha_maq)}, {victorias}, {derrotas}, {empates}\n')
+        resultados.writelines(f'{victorias}, {derrotas}, {empates}\n')
 
 
 
@@ -190,7 +258,7 @@ def reiniciar_tablero():
     return [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
 
 
-
+###########################
 
 # Iniciar el juego ▶
 while True:

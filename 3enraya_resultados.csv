@@ -1,25 +1,8 @@
-gana_humano, gana_máquina, victorias_humanas, derrotas_humanas, empate
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 3, 0, 0
-True, False, 4, 0, 0
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-False, True, 0, 1, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 1, 0, 0
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 3, 0, 0
-True, False, 1, 0, 0
-True, False, 2, 0, 0
-True, False, 1, 0, 0
+victorias_humanas, derrotas_humanas, empate
+0, 0, 1
+0, 0, 2
+0, 0, 3
+0, 1, 0
+0, 0, 1
+0, 0, 1
+0, 0, 2
